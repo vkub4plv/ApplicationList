@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model applications {
+  app_id        Int       @id(map: "PK_app_id") @default(autoincrement())
+  app_title     String    @db.NVarChar(100)
+  app_url       String
+  app_sortOrder Int
+  app_createdAt DateTime? @default(now(), map: "DF_app_createdAt") @db.DateTime
+  ico_id        Int?
+  icons         icons?    @relation(fields: [ico_id], references: [ico_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_applications_ico_id")
+
+  @@index([ico_id], map: "IX_applications_ico_id")
+  @@index([app_sortOrder], map: "IX_applications_sort")
+  @@index([app_title], map: "IX_applications_title")
+}
+
+model icons {
+  ico_id         Int            @id(map: "PK_ico_id") @default(autoincrement())
+  ico_name       String         @db.NVarChar(50)
+  ico_fileName   String         @unique(map: "UX_icons_fileName") @db.NVarChar(100)
+  ico_uploadedAt DateTime?      @default(now(), map: "DF_ico_uploadedAt") @db.DateTime
+  applications   applications[]
+}
